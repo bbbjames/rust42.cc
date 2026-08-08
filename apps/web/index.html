@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rust REPL</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace; background: #1a1b26; color: #c0caf5; display: flex; height: 100vh; overflow: hidden; }
+#editor-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+#editor-header { padding: 8px 12px; background: #16161e; font-size: 12px; color: #565f89; border-bottom: 1px solid #2f3346; }
+#code-input { flex: 1; background: #1a1b26; color: #c0caf5; border: none; padding: 12px; font-family: inherit; font-size: 14px; resize: none; outline: none; line-height: 1.6; }
+#code-input::placeholder { color: #3b4261; }
+#controls { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid #2f3346; background: #16161e; }
+button { background: #3d59a1; color: #c0caf5; border: none; padding: 8px 16px; font-family: inherit; font-size: 13px; cursor: pointer; border-radius: 4px; }
+button:hover { background: #5474c4; }
+button.reset { background: #3b4261; }
+button.reset:hover { background: #565f89; }
+#right-panel { width: 420px; display: flex; flex-direction: column; border-left: 1px solid #2f3346; }
+#output-panel { flex: 1; overflow-y: auto; padding: 12px; }
+#output-header { padding: 8px 12px; background: #16161e; font-size: 12px; color: #565f89; border-bottom: 1px solid #2f3346; }
+.output-line { padding: 4px 0; font-size: 13px; white-space: pre-wrap; word-break: break-all; }
+.output-line.error { color: #f7768e; }
+.output-line.stdout { color: #9ece6a; }
+.output-line.meta { color: #565f89; font-size: 11px; }
+#timeline-panel { height: 250px; overflow-y: auto; border-top: 1px solid #2f3346; padding: 12px; }
+#timeline-header { padding: 8px 12px; background: #16161e; font-size: 12px; color: #565f89; border-bottom: 1px solid #2f3346; border-top: 1px solid #2f3346; }
+.timeline-entry { padding: 6px 8px; margin-bottom: 4px; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; }
+.timeline-entry:hover { background: #2f3346; }
+.timeline-entry .id { color: #7aa2f7; }
+.timeline-entry .time { color: #565f89; }
+.timeline-entry.error-entry .id { color: #f7768e; }
+.status { padding: 4px 12px; font-size: 11px; color: #565f89; }
+</style>
+</head>
+<body>
+
+<div id="editor-panel">
+    <div id="editor-header">Rust REPL — type code and press Ctrl+Enter to run</div>
+    <textarea id="code-input" placeholder="fn main() { println!(\"hello\"); }" autofocus></textarea>
+    <div id="controls">
+        <button onclick="runCode()">Run (Ctrl+Enter)</button>
+        <button class="reset" onclick="resetSession()">Reset Session</button>
+        <span class="status" id="status">ready</span>
+    </div>
+</div>
+
+<div id="right-panel">
+    <div id="output-header">Output</div>
+    <div id="output-panel"></div>
+    <div id="timeline-header">Timeline</div>
+    <div id="timeline-panel"></div>
+</div>
+
+<script>
+const API = "";
+const output = document.getElementById("output-panel");
+const timeline = document.getElementById("timeline-panel");
+const statusEl = document.getElementById("status");
+const codeInput = document.getElementById("code-input");
+
+let sessionId = null;
+
+async function api(path, opts) {
+    const res = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...opts });
+    return res.json();
+}
+
+function appendOutput(type, text) {
+    const div = document.createElement("div");
+    div.className = "output-line " + type;
+    div.textContent = text;
+    output.appendChild(div);
+    output.scrollTop = output.scrollHeight;
+}
+
+async function runCode() {
+    const code = codeInput.value.trim();
+    if (!code) return;
+
+    statusEl.textContent = "running...";
+    const start = Date.now();
+
+    let result;
+    try {
+        result = await api("/run", {
+            method: "POST",
+            body: JSON.stringify({ sessionId, code }),
+        });
+    } catch (e) {
+        appendOutput("error", "Connection failed: " + e.message);
+        statusEl.textContent = "error";
+        return;
+    }
+
+    const dur = Date.now() - start;
+
+    if (result.ok) {
+        appendOutput("stdout", result.stdout.trimEnd());
+        appendOutput("meta", `✓ cmd#${result.commandId}  compile:${result.compileMs}ms  run:${result.runMs}ms  total:${dur}ms`);
+    } else {
+        appendOutput("error", result.stderr.trimEnd());
+        appendOutput("meta", `✗ cmd#${result.commandId}  total:${dur}ms`);
+    }
+
+    statusEl.textContent = result.ok ? "ok" : "compile error";
+    refreshTimeline();
+    codeInput.value = "";
+    codeInput.focus();
+}
+
+function addTimelineEntry(cmd, lastResult) {
+    const div = document.createElement("div");
+    div.className = "timeline-entry" + (lastResult === false ? " error-entry" : "");
+    div.innerHTML = `<span class="id">#${cmd.commandId}</span><span class="time">${cmd.code.slice(0,40)}</span>`;
+    div.onclick = async () => {
+        appendOutput("meta", `--- replay command #${cmd.commandId} ---`);
+        let session;
+        try { session = await api("/session/" + sessionId); } catch (_) { return; }
+        const replayCommands = session.commands.slice(0, cmd.commandId + 1);
+        let src = "fn main() {\n";
+        for (const c of replayCommands) {
+            let code = c.code.trim();
+            if (!code.endsWith(";") && !code.endsWith("}")) code += ";";
+            src += "    " + code.replace(/\n/g, "\n    ") + "\n";
+        }
+        src += "}\n";
+        appendOutput("meta", src.trimEnd());
+    };
+    timeline.prepend(div);
+}
+
+async function refreshTimeline() {
+    if (!sessionId) return;
+    let session;
+    try { session = await api("/session/" + sessionId); } catch (_) { return; }
+    timeline.innerHTML = "";
+    for (let i = session.commands.length - 1; i >= 0; i--) {
+        addTimelineEntry(session.commands[i], null);
+    }
+}
+
+async function resetSession() {
+    if (sessionId) await api("/session/" + sessionId, { method: "DELETE" });
+    sessionId = null;
+    output.innerHTML = "";
+    timeline.innerHTML = "";
+    appendOutput("meta", "Session reset. Create new session...");
+    initSession();
+}
+
+async function initSession() {
+    try {
+        const data = await api("/session", { method: "POST" });
+        sessionId = data.sessionId;
+        statusEl.textContent = "session: " + sessionId.slice(0,8);
+        appendOutput("meta", "Session: " + sessionId);
+    } catch (e) {
+        statusEl.textContent = "offline";
+        appendOutput("error", "Cannot reach runtime at " + API);
+    }
+}
+
+codeInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        runCode();
+    }
+});
+
+initSession();
+</script>
+</body>
+</html>

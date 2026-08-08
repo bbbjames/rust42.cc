@@ -1,0 +1,25 @@
+zerops:
+  - setup: eleftheria
+    build:
+      base: nodejs@20
+      deployFiles:
+        - index.html
+    run:
+      base: static
+
+  - setup: runtime-host
+    build:
+      base: nodejs@20
+      buildCommands:
+        - cd apps/runtime-host && npm i
+      deployFiles:
+        - apps/runtime-host/~
+        - apps/web/~index.html
+    run:
+      base: nodejs@20
+      ports:
+        - port: 3000
+          httpSupport: true
+      prepareCommands:
+        - sudo apk add rust cargo
+      start: node index.js

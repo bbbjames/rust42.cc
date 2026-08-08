@@ -1,0 +1,5 @@
+services:
+  - hostname: runner
+    type: nodejs@20
+    enableSubdomainAccess: true
+    startWithoutCode: true

@@ -1,0 +1,7 @@
+{
+  "name": "runtime-host",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  }
+}
