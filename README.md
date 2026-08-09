@@ -1,5 +1,7 @@
 # Rust REPL
 
+![Rust42.cc](rust42.cc.png)
+
 A browser-based Rust REPL with persistent state, live compilation, and time-travel debugging.
 
 **[Try it live → rust42.cc](https://rust42.cc)**
