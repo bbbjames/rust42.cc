@@ -14,7 +14,7 @@ Type Rust code, press **Ctrl+Enter**, and see it compile and run — instantly. 
 
 Under the hood, each command appends to a session log. When you run command N, the server rebuilds the entire source from commands 0..N, compiles with `rustc`, and executes the binary. Dead simple, fully deterministic, and no magic.
 
-## Quick-Start Example
+## Quick-Start Example (Sequence)
 
 **Step 1.** Type this and press **Ctrl+Enter**:
 
@@ -52,9 +52,11 @@ fn main() {
 
 Compiles, runs, returns `84`. State persists because every execution replays the entire session.
 
+---
+
 In addition we have a Canvas to draw to. Please try the Arc Pattern example below:
 
-## Arc Pattern
+## Quick-Start Example (Canvas) Arc Pattern
 
 ```rust
 for i in 0..12 {
@@ -62,6 +64,10 @@ for i in 0..12 {
     _arc(230, 150, 40 + i * 8, a, a + 1.2, 100 + i as u8 * 12, 200, 150 + i as u8 * 8);
 }
 ```
+
+## Additional Canvas Examples
+
+More canvas examples in [`CANVAS-EXAMPLES.md`](./CANVAS-EXAMPLES.md).
 
 ---
 
@@ -107,9 +113,6 @@ println!("{doubled:?}");
 More sequence examples in [`SEQUENCE-EXAMPLES.md`](./SEQUENCE-EXAMPLES.md).
 
 ---
-## Additional Canvas Examples
-
-More canvas examples in [`CANVAS-EXAMPLES.md`](./CANVAS-EXAMPLES.md).
 
 ## Architecture
 
