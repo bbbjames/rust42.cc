@@ -20,9 +20,10 @@ Under the hood, each command appends to a session log. When you run command N, t
 
 ```rust
 let x = 42;
+println!("{x}");
 ```
 
-The code is sent to the runtime-host as `{ sessionId, code }`. The server writes a full `main.rs`:
+The code is sent to the runtime-host as `{ sessionId, code }`. The server wraps it in a full `main.rs`:
 
 ```rust
 fn main() {
