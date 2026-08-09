@@ -16,7 +16,11 @@ Under the hood, each command appends to a session log. When you run command N, t
 
 ## Quick-Start Example
 
-**Step 1.** Type `let x = 42;` and press **Ctrl+Enter**.
+**Step 1.** Type this and press **Ctrl+Enter**:
+
+```rust
+let x = 42;
+```
 
 The code is sent to the runtime-host as `{ sessionId, code }`. The server writes a full `main.rs`:
 
@@ -29,7 +33,11 @@ fn main() {
 
 Compiles with `rustc`, runs the binary, captures `stdout: "42\n"`, and returns it. The SPA shows `42` in the output panel and adds a new entry to the timeline.
 
-**Step 2.** Type `let y = x * 2; println!("{y}");` and press **Ctrl+Enter**.
+**Step 2.** Type this and press **Ctrl+Enter**:
+
+```rust
+let y = x * 2; println!("{y}");
+```
 
 The runtime-host replays the full command log:
 
