@@ -15,6 +15,7 @@ zerops:
       deployFiles:
         - apps/runtime-host/~
         - apps/web/~index.html
+        - rust42.cc.png
     run:
       base: nodejs@20
       ports:
