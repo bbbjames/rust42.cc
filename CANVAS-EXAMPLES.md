@@ -171,41 +171,6 @@ for i in 0..2000 {
 
 ---
 
-## Fibonacci Squares
-
-```rust
-_clear();
-let fib = &[1, 2, 3, 5, 8, 13, 21];
-let mut x = 0;
-let mut y = 0;
-for i in 0..fib.len() {
-    let s = fib[i] * 8;
-_rect_w(x, y, s, s, 80, 80, 80, 1);
-    let pi = 3.14159;
-    match i % 4 {
-        0 => { _arc(x + s, y, s, pi, 1.5 * pi, 255, 200, 100); x += s; }
-        1 => { _arc(x, y, s, -0.5 * pi, 0.0, 255, 200, 100); y -= s; x -= s; }
-        2 => { _arc(x, y + s, s, 0.0, 0.5 * pi, 255, 200, 100); x -= s; y += s; }
-        3 => { _arc(x + s, y + s, s, -pi, -0.5 * pi, 255, 200, 100); y += s; }
-        _ => {}
-    }
-}
-```
-
----
-
-## Arc Pattern
-
-```rust
-_clear();
-for i in 0..12 {
-    let a = i as f64 * 0.523;
-    _arc(230, 150, 40 + i * 8, a, a + 1.2, 100 + i as u8 * 12, 200, 150 + i as u8 * 8);
-}
-```
-
----
-
 ## Bar Chart
 ```rust
 _clear();
@@ -227,6 +192,18 @@ for i in 0..10 {
         200 - (i as f64 * 15.0) as u8,
         100 + i as u8 * 10,
     );
+}
+```
+
+---
+
+## Arc Pattern
+
+```rust
+_clear();
+for i in 0..12 {
+    let a = i as f64 * 0.523;
+    _arc(230, 150, 40 + i * 8, a, a + 1.2, 100 + i as u8 * 12, 200, 150 + i as u8 * 8);
 }
 ```
 
