@@ -40,12 +40,14 @@ function broadcastDraw(msg) {
     }
 }
 
-const DRAW_PRELUDE = `fn _clear() { println!(r#"{{"draw":"clear"}}"#); }
-fn _circle(x: i32, y: i32, radius: i32) { println!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":255,"g":255,"b":255,"a":255}}"#, x, y, radius); }
-fn _circle_color(x: i32, y: i32, radius: i32, r: u8, g: u8, b: u8) { println!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, radius, r, g, b); }
-fn _rect(x: i32, y: i32, w: i32, h: i32, r: u8, g: u8, b: u8) { println!(r#"{{"draw":"rect","x":{},"y":{},"w":{},"h":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, w, h, r, g, b); }
-fn _line(x1: i32, y1: i32, x2: i32, y2: i32, r: u8, g: u8, b: u8) { println!(r#"{{"draw":"line","x1":{},"y1":{},"x2":{},"y2":{},"r":{},"g":{},"b":{},"a":255}}"#, x1, y1, x2, y2, r, g, b); }
-fn _pixel(x: i32, y: i32, r: u8, g: u8, b: u8) { println!(r#"{{"draw":"pixel","x":{},"y":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, r, g, b); }
+const DRAW_PRELUDE = `use std::sync::Mutex;
+static _BUF: Mutex<Vec<String>> = Mutex::new(Vec::new());
+fn _clear() { _BUF.lock().unwrap().push(r#"{"draw":"clear"}"#.into()); }
+fn _circle(x: i32, y: i32, radius: i32) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":255,"g":255,"b":255,"a":255}}"#, x, y, radius)); }
+fn _circle_color(x: i32, y: i32, radius: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, radius, r, g, b)); }
+fn _rect(x: i32, y: i32, w: i32, h: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"rect","x":{},"y":{},"w":{},"h":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, w, h, r, g, b)); }
+fn _line(x1: i32, y1: i32, x2: i32, y2: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"line","x1":{},"y1":{},"x2":{},"y2":{},"r":{},"g":{},"b":{},"a":255}}"#, x1, y1, x2, y2, r, g, b)); }
+fn _pixel(x: i32, y: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"pixel","x":{},"y":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, r, g, b)); }
 `;
 
 function buildSource(commands) {
@@ -57,6 +59,8 @@ function buildSource(commands) {
         }
         src += "    " + code.replace(/\n/g, "\n    ") + "\n";
     }
+    src += "    let _b = _BUF.lock().unwrap();\n";
+    src += "    if !_b.is_empty() { println!(\"[{}]\", _b.join(\",\")); }\n";
     src += "}\n";
     return src;
 }
@@ -89,10 +93,14 @@ function runRust(source) {
 
         for (const line of output.split("\n")) {
             const trimmed = line.trim();
-            if (trimmed.startsWith('{"draw":')) {
-                try { drawCommands.push(JSON.parse(trimmed)); }
-                catch (_) { textLines.push(trimmed); }
-            } else if (trimmed) {
+            if (!trimmed) continue;
+            if (trimmed.startsWith("[")) {
+                try {
+                    const arr = JSON.parse(trimmed);
+                    if (Array.isArray(arr)) drawCommands.push(...arr);
+                    else textLines.push(trimmed);
+                } catch (_) { textLines.push(trimmed); }
+            } else {
                 textLines.push(trimmed);
             }
         }
