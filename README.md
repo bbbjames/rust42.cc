@@ -62,9 +62,9 @@ Compiles, runs, returns `84`. State persists because every execution replays the
 
 ---
 
-## Code Examples
+## Additional Sequence Examples
 
-Run these in sequence at [rust42.cc](https://rust42.cc):
+Run these **in sequence** at [rust42.cc](https://rust42.cc):
 
 ```rust
 println!("hello, world");
@@ -91,15 +91,24 @@ let doubled: Vec<i32> = nums.iter().map(|n| n * 2).collect();
 println!("{doubled:?}");
 ```
 
-More examples in [`README-RUST-EXAMPLES.md`](./README-RUST-EXAMPLES.md).
+More examples in [`SEQUENCE-EXAMPLES.md`](./SEQUENCE-EXAMPLES.md).
 
 ---
 
 ## Architecture
 
-```
-Browser (SPA)  →  POST /run  →  Node.js runtime-host  →  rustc  →  binary  →  stdout
-                   { code, sessionId }                    compile     execute
+```text
+POST /run { code, sessionId }
+        │
+        ▼
+   Node.js runtime-host
+        │
+        ├─► rustc (compile)
+        │
+        └─► binary (execute)
+              │
+              ▼
+           stdout
 ```
 
 - **Runtime-host**: Node.js + `rustc` on Alpine Linux
@@ -120,9 +129,3 @@ Browser (SPA)  →  POST /run  →  Node.js runtime-host  →  rustc  →  binar
 | `POST` | `/run` | Compile and run code → `{ ok, stdout, compileMs, runMs }` |
 
 `POST /run` body: `{ sessionId?: string, code: string }`
-
----
-
-## Development
-
-See [the architectural plan](../readme.md) for implementation phases.
