@@ -149,6 +149,28 @@ for x in 0..460 {
 
 ---
 
+## Golden Spiral
+
+```rust
+_clear();
+let cx = 230.0;
+let cy = 150.0;
+let phi: f64 = 1.6180339;
+let mut prev_x = cx as i32;
+let mut prev_y = cy as i32;
+for i in 0..2000 {
+    let t = i as f64 * 0.02;
+    let r = 0.5 * phi.powf(2.0 * t / 3.14159);
+    let x = (cx + r * t.cos()) as i32;
+    let y = (cy + r * t.sin()) as i32;
+    _line(prev_x, prev_y, x, y, 200, 150, 100 + (i as u8 / 10));
+    prev_x = x;
+    prev_y = y;
+}
+```
+
+---
+
 ## Bar Chart
 
 ```rust
