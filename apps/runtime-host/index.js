@@ -209,6 +209,15 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    try {
+        const data = readFileSync("/var/www" + path);
+        const ext = path.split(".").pop() || "";
+        const types = { png: "image/png", ico: "image/x-icon", svg: "image/svg+xml", webmanifest: "application/manifest+json", json: "application/json", js: "text/javascript", css: "text/css" };
+        res.writeHead(200, { "Content-Type": types[ext] || "application/octet-stream" });
+        res.end(data);
+        return;
+    } catch (_) {}
+
     res.writeHead(200, { "Content-Type": "text/plain" });
     res.end("repl-wasm-os runtime-host running\n");
 });
