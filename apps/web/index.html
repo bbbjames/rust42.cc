@@ -143,6 +143,13 @@ function handleDraw(cmd) {
             ctx.font = "12px 'Fira Code', monospace";
             ctx.fillText(cmd.msg, cmd.x, cmd.y);
             break;
+        case "arc":
+            ctx.strokeStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(cmd.x, cmd.y, cmd.radius, cmd.start, cmd.end);
+            ctx.stroke();
+            break;
     }
 }
 

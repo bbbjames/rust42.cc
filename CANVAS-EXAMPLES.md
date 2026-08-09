@@ -171,6 +171,29 @@ for i in 0..2000 {
 
 ---
 
+## Fibonacci Squares
+
+```rust
+_clear();
+let fib = &[1, 2, 3, 5, 8, 13, 21];
+let mut x = 0;
+let mut y = 0;
+for i in 0..fib.len() {
+    let s = fib[i] * 8;
+    _rect_w(x, y, s, s, 80, 80, 80, 1);
+    let pi = 3.14159;
+    match i % 4 {
+        0 => { _arc(x + s, y, s, pi, 1.5 * pi, 255, 200, 100); x += s; }
+        1 => { _arc(x, y, s, -0.5 * pi, 0.0, 255, 200, 100); y -= s; x -= s; }
+        2 => { _arc(x, y + s, s, 0.0, 0.5 * pi, 255, 200, 100); x -= s; y += s; }
+        3 => { _arc(x + s, y + s, s, -pi, -0.5 * pi, 255, 200, 100); y += s; }
+        _ => {}
+    }
+}
+```
+
+---
+
 ## Bar Chart
 
 ```rust
@@ -263,5 +286,6 @@ for _ in 0..200 {
 | `_line_w(x1, y1, x2, y2, r, g, b, w)` | x1, y1, x2, y2, w: i32, r, g, b: u8 |
 | `_pixel(x, y, r, g, b)` | x, y: i32, r, g, b: u8 |
 | `_text(x, y, msg, r, g, b)` | x, y: i32, msg: &str, r, g, b: u8 |
+| `_arc(x, y, radius, start, end, r, g, b)` | x, y, radius: i32, start, end: f64, r, g, b: u8 |
 
 Canvas is 460×300 pixels. Coordinates top-left origin. Colors are RGB with u8 values (0–255). Text uses 12px monospace font.
