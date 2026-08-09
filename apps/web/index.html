@@ -7,6 +7,11 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace; background: #1a1b26; color: #c0caf5; display: flex; height: 100vh; overflow: hidden; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #16161e; }
+::-webkit-scrollbar-thumb { background: #2f3346; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3d59a1; }
+* { scrollbar-width: thin; scrollbar-color: #2f3346 #16161e; }
 #editor-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 #editor-header { padding: 8px 12px; background: #16161e; font-size: 12px; color: #565f89; border-bottom: 1px solid #2f3346; }
 #code-input { flex: 1; background: #1a1b26; color: #c0caf5; border: none; padding: 12px; font-family: inherit; font-size: 14px; resize: none; outline: none; line-height: 1.6; }
@@ -16,13 +21,16 @@ button { background: #3d59a1; color: #c0caf5; border: none; padding: 8px 16px; f
 button:hover { background: #5474c4; }
 button.reset { background: #3b4261; }
 button.reset:hover { background: #565f89; }
-#right-panel { width: 420px; display: flex; flex-direction: column; border-left: 1px solid #2f3346; }
+#right-panel { width: 480px; display: flex; flex-direction: column; border-left: 1px solid #2f3346; }
 #output-panel { flex: 1; overflow-y: auto; padding: 12px; }
 #output-header { padding: 8px 12px; background: #16161e; font-size: 12px; color: #565f89; border-bottom: 1px solid #2f3346; }
 .output-line { padding: 4px 0; font-size: 13px; white-space: pre-wrap; word-break: break-all; }
 .output-line.error { color: #f7768e; }
 .output-line.stdout { color: #9ece6a; }
 .output-line.meta { color: #565f89; font-size: 11px; }
+#canvas-header { padding: 8px 12px; background: #16161e; font-size: 12px; color: #565f89; border-bottom: 1px solid #2f3346; border-top: 1px solid #2f3346; display: flex; justify-content: space-between; }
+#canvas-panel { background: #1a1b26; display: flex; align-items: center; justify-content: center; }
+#canvas-panel canvas { display: block; }
 #timeline-panel { height: 250px; overflow-y: auto; border-top: 1px solid #2f3346; padding: 12px; }
 #timeline-header { padding: 8px 12px; background: #16161e; font-size: 12px; color: #565f89; border-bottom: 1px solid #2f3346; border-top: 1px solid #2f3346; }
 .timeline-entry { padding: 6px 8px; margin-bottom: 4px; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; }
@@ -30,7 +38,7 @@ button.reset:hover { background: #565f89; }
 .timeline-entry .id { color: #7aa2f7; }
 .timeline-entry .time { color: #565f89; }
 .timeline-entry.error-entry .id { color: #f7768e; }
-.status { padding: 4px 12px; font-size: 11px; color: #565f89; }
+.status { padding: 4px 12px; font-size: 11px; color: #565f89; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -41,13 +49,15 @@ button.reset:hover { background: #565f89; }
     <div id="controls">
         <button onclick="runCode()">Run (Ctrl+Enter)</button>
         <button class="reset" onclick="resetSession()">Reset Session</button>
-        <span class="status" id="status">ready</span>
+        <span class="status" id="status">status: ready</span>
     </div>
 </div>
 
 <div id="right-panel">
     <div id="output-header">Output</div>
     <div id="output-panel"></div>
+    <div id="canvas-header"><span>Canvas</span><button class="reset" onclick="clearCanvas()">Clear</button></div>
+    <div id="canvas-panel"><canvas id="canvas"></canvas></div>
     <div id="timeline-header">Timeline</div>
     <div id="timeline-panel"></div>
 </div>
@@ -58,8 +68,73 @@ const output = document.getElementById("output-panel");
 const timeline = document.getElementById("timeline-panel");
 const statusEl = document.getElementById("status");
 const codeInput = document.getElementById("code-input");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const CANVAS_W = 460;
+const CANVAS_H = 300;
+canvas.width = CANVAS_W;
+canvas.height = CANVAS_H;
 
 let sessionId = null;
+let ws = null;
+
+function connectWS() {
+    const proto = location.protocol === "https:" ? "wss:" : "ws:";
+    ws = new WebSocket(proto + "//" + location.host + "/ws");
+
+    ws.onmessage = (e) => {
+        try {
+            const msg = JSON.parse(e.data);
+            if (msg.commands) drawCommands(msg.commands);
+        } catch (_) {}
+    };
+
+    ws.onclose = () => { setTimeout(connectWS, 2000); };
+}
+
+function drawCommands(commands) {
+    for (const cmd of commands) {
+        handleDraw(cmd);
+    }
+}
+
+function handleDraw(cmd) {
+    switch (cmd.draw) {
+        case "clear":
+            ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+            break;
+        case "line":
+            ctx.strokeStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.beginPath();
+            ctx.moveTo(cmd.x1, cmd.y1);
+            ctx.lineTo(cmd.x2, cmd.y2);
+            ctx.stroke();
+            break;
+        case "rect":
+            ctx.fillStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.fillRect(cmd.x, cmd.y, cmd.w, cmd.h);
+            break;
+        case "circle":
+            ctx.strokeStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.beginPath();
+            ctx.arc(cmd.x, cmd.y, cmd.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            break;
+        case "pixel":
+            ctx.fillStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.fillRect(cmd.x, cmd.y, 1, 1);
+            break;
+    }
+}
+
+function rgba(r, g, b, a) {
+    return `rgba(${r || 255},${g || 255},${b || 255},${(a || 255) / 255})`;
+}
+
+function clearCanvas() {
+    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+}
 
 async function api(path, opts) {
     const res = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...opts });
@@ -67,6 +142,7 @@ async function api(path, opts) {
 }
 
 function appendOutput(type, text) {
+    if (!text) return;
     const div = document.createElement("div");
     div.className = "output-line " + type;
     div.textContent = text;
@@ -78,7 +154,7 @@ async function runCode() {
     const code = codeInput.value.trim();
     if (!code) return;
 
-    statusEl.textContent = "running...";
+    statusEl.textContent = "status: running...";
     const start = Date.now();
 
     let result;
@@ -89,7 +165,7 @@ async function runCode() {
         });
     } catch (e) {
         appendOutput("error", "Connection failed: " + e.message);
-        statusEl.textContent = "error";
+        statusEl.textContent = "status: error";
         return;
     }
 
@@ -103,7 +179,9 @@ async function runCode() {
         appendOutput("meta", `✗ cmd#${result.commandId}  total:${dur}ms`);
     }
 
-    statusEl.textContent = result.ok ? "ok" : "compile error";
+    statusEl.textContent = result.ok
+        ? `status: ok \u2713 compile:${result.compileMs}ms  run:${result.runMs}ms  total:${dur}ms`
+        : "status: compile error";
     refreshTimeline();
     codeInput.value = "";
     codeInput.focus();
@@ -145,6 +223,7 @@ async function resetSession() {
     sessionId = null;
     output.innerHTML = "";
     timeline.innerHTML = "";
+    clearCanvas();
     appendOutput("meta", "Session reset. Create new session...");
     initSession();
 }
@@ -157,7 +236,7 @@ async function initSession() {
         appendOutput("meta", "Session: " + sessionId);
     } catch (e) {
         statusEl.textContent = "offline";
-        appendOutput("error", "Cannot reach runtime at " + API);
+        appendOutput("error", "Cannot reach runtime");
     }
 }
 
@@ -168,6 +247,7 @@ codeInput.addEventListener("keydown", e => {
     }
 });
 
+connectWS();
 initSession();
 </script>
 </body>

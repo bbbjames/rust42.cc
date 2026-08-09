@@ -4,9 +4,11 @@ const { mkdtempSync, writeFileSync, rmSync, readFileSync } = require("fs");
 const { join } = require("path");
 const { tmpdir } = require("os");
 const { randomUUID } = require("crypto");
+const { WebSocketServer } = require("ws");
 
 const PORT = process.env.PORT || 3000;
 const sessions = new Map();
+const drawClients = new Set();
 
 function parseBody(req, cb) {
     let body = "";
@@ -31,8 +33,23 @@ function jsonError(res, status, msg) {
     json(res, status, { ok: false, stderr: msg });
 }
 
+function broadcastDraw(msg) {
+    const raw = JSON.stringify(msg);
+    for (const ws of drawClients) {
+        if (ws.readyState === 1) ws.send(raw);
+    }
+}
+
+const DRAW_PRELUDE = `fn _clear() { println!(r#"{{"draw":"clear"}}"#); }
+fn _circle(x: i32, y: i32, radius: i32) { println!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":255,"g":255,"b":255,"a":255}}"#, x, y, radius); }
+fn _circle_color(x: i32, y: i32, radius: i32, r: u8, g: u8, b: u8) { println!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, radius, r, g, b); }
+fn _rect(x: i32, y: i32, w: i32, h: i32, r: u8, g: u8, b: u8) { println!(r#"{{"draw":"rect","x":{},"y":{},"w":{},"h":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, w, h, r, g, b); }
+fn _line(x1: i32, y1: i32, x2: i32, y2: i32, r: u8, g: u8, b: u8) { println!(r#"{{"draw":"line","x1":{},"y1":{},"x2":{},"y2":{},"r":{},"g":{},"b":{},"a":255}}"#, x1, y1, x2, y2, r, g, b); }
+fn _pixel(x: i32, y: i32, r: u8, g: u8, b: u8) { println!(r#"{{"draw":"pixel","x":{},"y":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, r, g, b); }
+`;
+
 function buildSource(commands) {
-    let src = "fn main() {\n";
+    let src = DRAW_PRELUDE + "\nfn main() {\n";
     for (const cmd of commands) {
         let code = cmd.code.trim();
         if (!code.endsWith(";") && !code.endsWith("}")) {
@@ -67,7 +84,24 @@ function runRust(source) {
         });
         const runMs = Date.now() - runStart;
 
-        return { ok: true, stdout: output, compileMs, runMs };
+        const drawCommands = [];
+        const textLines = [];
+
+        for (const line of output.split("\n")) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('{"draw":')) {
+                try { drawCommands.push(JSON.parse(trimmed)); }
+                catch (_) { textLines.push(trimmed); }
+            } else if (trimmed) {
+                textLines.push(trimmed);
+            }
+        }
+
+        if (drawCommands.length > 0) {
+            broadcastDraw({ type: "batch", commands: drawCommands });
+        }
+
+        return { ok: true, stdout: textLines.join("\n") + "\n", compileMs, runMs };
     } catch (e) {
         return {
             ok: false,
@@ -161,6 +195,13 @@ const server = http.createServer((req, res) => {
 
     res.writeHead(200, { "Content-Type": "text/plain" });
     res.end("repl-wasm-os runtime-host running\n");
+});
+
+const wss = new WebSocketServer({ server });
+
+wss.on("connection", (ws) => {
+    drawClients.add(ws);
+    ws.on("close", () => drawClients.delete(ws));
 });
 
 server.listen(PORT, () => {

@@ -198,6 +198,58 @@ println!("sum = {sum}");
 
 ---
 
+## Canvas Drawing
+
+The REPL includes built-in draw helpers. Output renders on the canvas panel.
+
+```rust
+_clear();
+_circle(230, 150, 80);
+```
+
+```rust
+_rect(100, 50, 60, 40, 255, 100, 50);
+```
+
+```rust
+_line(10, 10, 200, 200, 100, 200, 255);
+```
+
+```rust
+_pixel(400, 50, 255, 255, 0);
+```
+
+Draw a pattern:
+
+```rust
+_clear();
+for i in 0..20 {
+    _circle_color(230, 150, i * 4, 100 + i as u8 * 7, 150 - i as u8 * 3, 200);
+}
+```
+
+Bar chart:
+
+```rust
+_clear();
+for i in 0..10 {
+    let h = 20 + i * 25;
+    _rect(10 + i * 45, 280 - h, 35, h, 100 + i as u8 * 15, 200, 100 + i as u8 * 10);
+}
+```
+
+**Available helpers**:
+| Function | Arguments |
+|----------|-----------|
+| `_clear()` | no args |
+| `_circle(x, y, radius)` | x, y, radius: i32 |
+| `_circle_color(x, y, radius, r, g, b)` | x, y, radius: i32, r, g, b: u8 |
+| `_rect(x, y, w, h, r, g, b)` | x, y, w, h: i32, r, g, b: u8 |
+| `_line(x1, y1, x2, y2, r, g, b)` | all i32, r, g, b: u8 |
+| `_pixel(x, y, r, g, b)` | x, y: i32, r, g, b: u8 |
+
+---
+
 ## Tips
 
 - Each command replays the full session — later commands have access to everything defined earlier.
