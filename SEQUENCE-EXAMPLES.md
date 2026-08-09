@@ -203,7 +203,6 @@ println!("sum = {sum}");
 The REPL includes built-in draw helpers. Output renders on the canvas panel.
 
 ```rust
-_clear();
 _circle(230, 150, 80);
 ```
 
@@ -222,7 +221,6 @@ _pixel(400, 50, 255, 255, 0);
 Draw a pattern:
 
 ```rust
-_clear();
 for i in 0..20 {
     _circle_color(230, 150, i * 4, 100 + i as u8 * 7, 150 - i as u8 * 3, 200);
 }
@@ -231,7 +229,6 @@ for i in 0..20 {
 Bar chart:
 
 ```rust
-_clear();
 for i in 0..10 {
     let h = 20 + i * 25;
     _rect(10 + i * 45, 280 - h, 35, h, 100 + i as u8 * 15, 200, 100 + i as u8 * 10);

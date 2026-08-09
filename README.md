@@ -52,6 +52,17 @@ fn main() {
 
 Compiles, runs, returns `84`. State persists because every execution replays the entire session.
 
+In addition we have a Canvas to draw to. Please try the Arc Pattern example below:
+
+## Arc Pattern
+
+```rust
+for i in 0..12 {
+    let a = i as f64 * 0.523;
+    _arc(230, 150, 40 + i * 8, a, a + 1.2, 100 + i as u8 * 12, 200, 150 + i as u8 * 8);
+}
+```
+
 ---
 
 ## Features
@@ -93,9 +104,12 @@ let doubled: Vec<i32> = nums.iter().map(|n| n * 2).collect();
 println!("{doubled:?}");
 ```
 
-More examples in [`SEQUENCE-EXAMPLES.md`](./SEQUENCE-EXAMPLES.md).
+More sequence examples in [`SEQUENCE-EXAMPLES.md`](./SEQUENCE-EXAMPLES.md).
 
 ---
+## Additional Canvas Examples
+
+More canvas examples in [`CANVAS-EXAMPLES.md`](./CANVAS-EXAMPLES.md).
 
 ## Architecture
 

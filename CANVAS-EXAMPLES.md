@@ -9,18 +9,15 @@ The REPL includes draw helpers that render to the canvas panel. Run these **in s
 ## Getting Started
 
 ```rust
-_clear();
 _circle(230, 150, 80);
 ```
 
 ```rust
-_clear();
 _rect(100, 100, 80, 40, 255, 100, 50);
 _rect(200, 80, 60, 100, 50, 100, 255);
 ```
 
 ```rust
-_clear();
 _line(10, 10, 450, 290, 100, 200, 255);
 _line(10, 290, 450, 10, 200, 100, 255);
 ```
@@ -30,12 +27,10 @@ _line(10, 290, 450, 10, 200, 100, 255);
 ## Filled Circles
 
 ```rust
-_clear();
 _circle_fill(230, 150, 60, 100, 180, 255);
 ```
 
 ```rust
-_clear();
 for i in 0..10 {
     _circle_fill(
         60 + i * 40, 150 + ((i % 3) as i32 - 1) * 40,
@@ -50,7 +45,6 @@ for i in 0..10 {
 ## Line Width
 
 ```rust
-_clear();
 _line_w(10, 50, 450, 50, 100, 200, 255, 1);
 _line_w(10, 100, 450, 100, 100, 200, 255, 3);
 _line_w(10, 150, 450, 150, 100, 200, 255, 6);
@@ -59,7 +53,6 @@ _line_w(10, 250, 450, 250, 100, 200, 255, 15);
 ```
 
 ```rust
-_clear();
 for i in 0..5 {
     _circle_w(60 + i * 90, 150, 30 + i * 5, 1 + i * 2);
 }
@@ -70,13 +63,11 @@ for i in 0..5 {
 ## Text Labels
 
 ```rust
-_clear();
 _circle_fill(230, 150, 30, 100, 180, 255);
 _text(220, 154, "A", 255, 255, 255);
 ```
 
 ```rust
-_clear();
 for i in 0..8 {
     let x = 40 + i * 55;
     let y = 150 + ((i % 2) as i32 * 40 - 20);
@@ -86,7 +77,6 @@ for i in 0..8 {
 ```
 
 ```rust
-_clear();
 for i in 0..12 {
     let angle = i as f64 * 0.523;
     let x = 230 + (angle.cos() * 100.0) as i32;
@@ -102,14 +92,12 @@ _line(230, 150, 230, 150, 100, 180, 255);
 ## Patterns
 
 ```rust
-_clear();
 for i in 0..20 {
     _circle_color(230, 150, i * 4, 100 + i as u8 * 7, 150 - i as u8 * 3, 200);
 }
 ```
 
 ```rust
-_clear();
 for i in 0..16 {
     _line(
         230 + (((i as f64) * 0.392).sin() * 120.0) as i32,
@@ -126,7 +114,6 @@ for i in 0..16 {
 ## Sine Wave
 
 ```rust
-_clear();
 let w = 460.0;
 let h = 300.0;
 for x in 0..460 {
@@ -137,7 +124,6 @@ for x in 0..460 {
 ```
 
 ```rust
-_clear();
 let w = 460.0;
 let h = 300.0;
 for x in 0..460 {
@@ -152,7 +138,6 @@ for x in 0..460 {
 ## Golden Spiral
 
 ```rust
-_clear();
 let cx = 230.0;
 let cy = 150.0;
 let phi: f64 = 1.6180339;
@@ -171,9 +156,19 @@ for i in 0..2000 {
 
 ---
 
+## Arc Pattern
+
+```rust
+for i in 0..12 {
+    let a = i as f64 * 0.523;
+    _arc(230, 150, 40 + i * 8, a, a + 1.2, 100 + i as u8 * 12, 200, 150 + i as u8 * 8);
+}
+```
+
+---
+
 ## Bar Chart
 ```rust
-_clear();
 for i in 0..10 {
     let h = 20 + i * 25;
     _rect(10 + i * 45, 280 - h, 35, h, 100 + i as u8 * 15, 200, 100 + i as u8 * 10);
@@ -181,7 +176,6 @@ for i in 0..10 {
 ```
 
 ```rust
-_clear();
 let values = [45, 120, 80, 200, 60, 150, 30, 180, 95, 140];
 for i in 0..10 {
     let h = values[i];
@@ -197,22 +191,9 @@ for i in 0..10 {
 
 ---
 
-## Arc Pattern
-
-```rust
-_clear();
-for i in 0..12 {
-    let a = i as f64 * 0.523;
-    _arc(230, 150, 40 + i * 8, a, a + 1.2, 100 + i as u8 * 12, 200, 150 + i as u8 * 8);
-}
-```
-
----
-
 ## Grid
 
 ```rust
-_clear();
 for x in (0..460).step_by(20) {
     _line(x, 0, x, 299, 40, 40, 60);
 }
@@ -222,7 +203,6 @@ for y in (0..300).step_by(20) {
 ```
 
 ```rust
-_clear();
 for x in 0..23 {
     _line(x * 20, 0, x * 20, 299, 40, 40, 60);
 }
@@ -239,7 +219,6 @@ for i in 0..10 {
 ## Random Scatter
 
 ```rust
-_clear();
 let mut seed = 12345u32;
 for _ in 0..200 {
     seed = seed.wrapping_mul(1103515245).wrapping_add(12345);
