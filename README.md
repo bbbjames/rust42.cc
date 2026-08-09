@@ -10,9 +10,11 @@ A browser-based Rust REPL with persistent state, live compilation, and time-trav
 
 ## How It Works
 
-Type Rust code, press **Ctrl+Enter**, and see it compile and run — instantly. Every command replays the full session, so variables, functions, and structs defined earlier stay alive across commands.
+Type Rust code, press **Ctrl+Enter**, and see it compile and run. Every command replays the full session, so variables, functions, and structs defined earlier stay alive across commands.
 
-Under the hood, each command appends to a session log. When you run command N, the server rebuilds the entire source from commands 0..N, compiles with `rustc`, and executes the binary. Dead simple, fully deterministic, and no magic.
+Under the hood, each command appends to a session log. When you run command N, the server rebuilds the entire source from commands 0..N, compiles with `rustc`, and executes the binary. Simple, no magic.
+
+Get Quick-Started with **(1) Quick-Start Sequence** and **(2) Quick-Start Canvas**
 
 ## Quick-Start Example (Sequence)
 
