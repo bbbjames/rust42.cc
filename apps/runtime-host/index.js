@@ -43,11 +43,18 @@ function broadcastDraw(msg) {
 const DRAW_PRELUDE = `use std::sync::Mutex;
 static _BUF: Mutex<Vec<String>> = Mutex::new(Vec::new());
 fn _clear() { _BUF.lock().unwrap().push(r#"{"draw":"clear"}"#.into()); }
-fn _circle(x: i32, y: i32, radius: i32) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":255,"g":255,"b":255,"a":255}}"#, x, y, radius)); }
-fn _circle_color(x: i32, y: i32, radius: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, radius, r, g, b)); }
-fn _rect(x: i32, y: i32, w: i32, h: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"rect","x":{},"y":{},"w":{},"h":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, w, h, r, g, b)); }
-fn _line(x1: i32, y1: i32, x2: i32, y2: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"line","x1":{},"y1":{},"x2":{},"y2":{},"r":{},"g":{},"b":{},"a":255}}"#, x1, y1, x2, y2, r, g, b)); }
+fn _circle(x: i32, y: i32, radius: i32) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":255,"g":255,"b":255,"a":255,"w":1}}"#, x, y, radius)); }
+fn _circle_w(x: i32, y: i32, radius: i32, w: i32) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":255,"g":255,"b":255,"a":255,"w":{}}}"#, x, y, radius, w)); }
+fn _circle_color(x: i32, y: i32, radius: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":{},"g":{},"b":{},"a":255,"w":1}}"#, x, y, radius, r, g, b)); }
+fn _circle_color_w(x: i32, y: i32, radius: i32, r: u8, g: u8, b: u8, w: i32) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circle","x":{},"y":{},"radius":{},"r":{},"g":{},"b":{},"a":255,"w":{}}}"#, x, y, radius, r, g, b, w)); }
+fn _circle_fill(x: i32, y: i32, radius: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"circleFill","x":{},"y":{},"radius":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, radius, r, g, b)); }
+fn _rect(x: i32, y: i32, w: i32, h: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"rect","x":{},"y":{},"w":{},"h":{},"r":{},"g":{},"b":{},"a":255,"lw":1}}"#, x, y, w, h, r, g, b)); }
+fn _rect_w(x: i32, y: i32, w: i32, h: i32, r: u8, g: u8, b: u8, lw: i32) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"rect","x":{},"y":{},"w":{},"h":{},"r":{},"g":{},"b":{},"a":255,"lw":{}}}"#, x, y, w, h, r, g, b, lw)); }
+fn _line(x1: i32, y1: i32, x2: i32, y2: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"line","x1":{},"y1":{},"x2":{},"y2":{},"r":{},"g":{},"b":{},"a":255,"w":1}}"#, x1, y1, x2, y2, r, g, b)); }
+fn _line_w(x1: i32, y1: i32, x2: i32, y2: i32, r: u8, g: u8, b: u8, w: i32) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"line","x1":{},"y1":{},"x2":{},"y2":{},"r":{},"g":{},"b":{},"a":255,"w":{}}}"#, x1, y1, x2, y2, r, g, b, w)); }
 fn _pixel(x: i32, y: i32, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"pixel","x":{},"y":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, r, g, b)); }
+fn _json_str(s: &str) -> String { let mut o=String::new(); o.push(34u8 as char); for c in s.chars() { match c as u32 { 34=>{o.push(92u8 as char);o.push(34u8 as char);} 92=>{o.push(92u8 as char);o.push(92u8 as char);} 10=>{o.push(92u8 as char);o.push(110u8 as char);} 13=>{o.push(92u8 as char);o.push(114u8 as char);} 9=>{o.push(92u8 as char);o.push(116u8 as char);} _=>o.push(c), } } o.push(34u8 as char); o }
+fn _text(x: i32, y: i32, msg: &str, r: u8, g: u8, b: u8) { _BUF.lock().unwrap().push(format!(r#"{{"draw":"text","x":{},"y":{},"msg":{},"r":{},"g":{},"b":{},"a":255}}"#, x, y, _json_str(msg), r, g, b)); }
 `;
 
 function buildSource(commands) {

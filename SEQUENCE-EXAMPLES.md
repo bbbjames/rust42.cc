@@ -243,10 +243,16 @@ for i in 0..10 {
 |----------|-----------|
 | `_clear()` | no args |
 | `_circle(x, y, radius)` | x, y, radius: i32 |
-| `_circle_color(x, y, radius, r, g, b)` | x, y, radius: i32, r, g, b: u8 |
+| `_circle_w(x, y, radius, w)` | + w: i32 (line width) |
+| `_circle_color(x, y, radius, r, g, b)` | + r, g, b: u8 |
+| `_circle_color_w(x, y, radius, r, g, b, w)` | + r, g, b: u8, w: i32 |
+| `_circle_fill(x, y, radius, r, g, b)` | filled circle |
 | `_rect(x, y, w, h, r, g, b)` | x, y, w, h: i32, r, g, b: u8 |
+| `_rect_w(x, y, w, h, r, g, b, lw)` | + lw: i32 (line width) |
 | `_line(x1, y1, x2, y2, r, g, b)` | all i32, r, g, b: u8 |
+| `_line_w(x1, y1, x2, y2, r, g, b, w)` | + w: i32 (line width) |
 | `_pixel(x, y, r, g, b)` | x, y: i32, r, g, b: u8 |
+| `_text(x, y, msg, r, g, b)` | x, y: i32, msg: &str, r, g, b: u8 |
 
 ---
 

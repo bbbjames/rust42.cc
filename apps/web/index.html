@@ -106,24 +106,42 @@ function handleDraw(cmd) {
             break;
         case "line":
             ctx.strokeStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.lineWidth = cmd.w || 1;
             ctx.beginPath();
             ctx.moveTo(cmd.x1, cmd.y1);
             ctx.lineTo(cmd.x2, cmd.y2);
             ctx.stroke();
             break;
         case "rect":
+            ctx.strokeStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.lineWidth = cmd.lw || 1;
             ctx.fillStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            if ((cmd.lw || 1) > 1) {
+                ctx.strokeRect(cmd.x, cmd.y, cmd.w, cmd.h);
+            }
             ctx.fillRect(cmd.x, cmd.y, cmd.w, cmd.h);
             break;
         case "circle":
             ctx.strokeStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.lineWidth = cmd.w || 1;
             ctx.beginPath();
             ctx.arc(cmd.x, cmd.y, cmd.radius, 0, Math.PI * 2);
             ctx.stroke();
             break;
+        case "circleFill":
+            ctx.fillStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.beginPath();
+            ctx.arc(cmd.x, cmd.y, cmd.radius, 0, Math.PI * 2);
+            ctx.fill();
+            break;
         case "pixel":
             ctx.fillStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
             ctx.fillRect(cmd.x, cmd.y, 1, 1);
+            break;
+        case "text":
+            ctx.fillStyle = rgba(cmd.r, cmd.g, cmd.b, cmd.a);
+            ctx.font = "12px 'Fira Code', monospace";
+            ctx.fillText(cmd.msg, cmd.x, cmd.y);
             break;
     }
 }
