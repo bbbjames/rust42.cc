@@ -45,6 +45,7 @@ The runtime-host replays the full command log:
 ```rust
 fn main() {
     let x = 42;
+    println!("{x}");
     let y = x * 2; println!("{y}");
 }
 ```
