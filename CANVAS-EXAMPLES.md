@@ -1,5 +1,7 @@
 # Canvas Examples
 
+![Canvas scatter plot](./screenshots/canvas-scatter.png)
+
 The REPL includes six draw helpers that render to the canvas panel. Run these **in sequence** at [rust42.cc](https://rust42.cc) by pressing **Ctrl+Enter**.
 
 ---
