@@ -12,6 +12,34 @@ Type Rust code, press **Ctrl+Enter**, and see it compile and run — instantly. 
 
 Under the hood, each command appends to a session log. When you run command N, the server rebuilds the entire source from commands 0..N, compiles with `rustc`, and executes the binary. Dead simple, fully deterministic, and no magic.
 
+## Quick-Start Example
+
+**Step 1.** Type `let x = 42;` and press **Ctrl+Enter**.
+
+The code is sent to the runtime-host as `{ sessionId, code }`. The server writes a full `main.rs`:
+
+```rust
+fn main() {
+    let x = 42;
+    println!("{x}");
+}
+```
+
+Compiles with `rustc`, runs the binary, captures `stdout: "42\n"`, and returns it. The SPA shows `42` in the output panel and adds a new entry to the timeline.
+
+**Step 2.** Type `let y = x * 2; println!("{y}");` and press **Ctrl+Enter**.
+
+The runtime-host replays the full command log:
+
+```rust
+fn main() {
+    let x = 42;
+    let y = x * 2; println!("{y}");
+}
+```
+
+Compiles, runs, returns `84`. State persists because every execution replays the entire session.
+
 ---
 
 ## Features
