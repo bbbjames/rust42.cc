@@ -15,6 +15,13 @@ zerops:
       deployFiles:
         - apps/runtime-host/~
         - apps/web/~index.html
+        - apps/web/~favicon.ico
+        - apps/web/~favicon.svg
+        - apps/web/~favicon-96x96.png
+        - apps/web/~apple-touch-icon.png
+        - apps/web/~site.webmanifest
+        - apps/web/~web-app-manifest-192x192.png
+        - apps/web/~web-app-manifest-512x512.png
         - rust42.cc.png
     run:
       base: nodejs@20
