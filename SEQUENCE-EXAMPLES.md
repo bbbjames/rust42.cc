@@ -1,7 +1,6 @@
 # Sequence Examples
 
-Copy any of these **in sequence** into the editor at [rust42.cc](https://rust42.cc) and press **Ctrl+Enter** to run.
-Each example builds on the previous one — the session remembers state across commands.
+Copy each section **in sequence** into the editor at [rust42.cc](https://rust42.cc) and press **Ctrl+Enter** to run. The session remembers state — each step builds on the last.
 
 ---
 
@@ -9,12 +8,12 @@ Each example builds on the previous one — the session remembers state across c
 
 ```rust
 println!("hello, world");
-```rust
+```
 
 ```rust
 let name = "Rust";
 println!("hello, {name}");
-```rust
+```
 
 ---
 
@@ -23,17 +22,17 @@ println!("hello, {name}");
 ```rust
 let x = 42;
 println!("x = {x}");
-```rust
+```
 
 ```rust
 let y = x * 3;
 println!("x = {x}, y = {y}");
-```rust
+```
 
 ```rust
 let sum = x + y;
 println!("{x} + {y} = {sum}");
-```rust
+```
 
 ---
 
@@ -42,12 +41,12 @@ println!("{x} + {y} = {sum}");
 ```rust
 let s = String::from("hello");
 println!("{s}");
-```rust
+```
 
 ```rust
 let upper: String = s.chars().map(|c| c.to_uppercase().next().unwrap()).collect();
 println!("{upper}");
-```rust
+```
 
 ---
 
@@ -56,17 +55,17 @@ println!("{upper}");
 ```rust
 let nums: Vec<i32> = (1..=10).collect();
 println!("{nums:?}");
-```rust
+```
 
 ```rust
 let doubled: Vec<i32> = nums.iter().map(|n| n * 2).collect();
 println!("{doubled:?}");
-```rust
+```
 
 ```rust
 let sum: i32 = nums.iter().sum();
 println!("sum = {sum}");
-```rust
+```
 
 ---
 
@@ -79,7 +78,7 @@ if age >= 18 {
 } else {
     println!("minor");
 }
-```rust
+```
 
 ---
 
@@ -89,7 +88,7 @@ if age >= 18 {
 for i in 0..5 {
     println!("loop {i}");
 }
-```rust
+```
 
 ```rust
 let mut total = 0;
@@ -97,7 +96,7 @@ for i in 1..=100 {
     total += i;
 }
 println!("1 + 2 + ... + 100 = {total}");
-```rust
+```
 
 ---
 
@@ -106,11 +105,11 @@ println!("1 + 2 + ... + 100 = {total}");
 ```rust
 fn square(x: i32) -> i32 { x * x }
 println!("square(5) = {}", square(5));
-```rust
+```
 
 ```rust
 println!("square(12) = {}", square(12));
-```rust
+```
 
 ---
 
@@ -120,7 +119,7 @@ println!("square(12) = {}", square(12));
 struct Point { x: f64, y: f64 }
 let p = Point { x: 3.0, y: 4.0 };
 println!("({}, {})", p.x, p.y);
-```rust
+```
 
 ```rust
 fn distance(a: &Point, b: &Point) -> f64 {
@@ -130,7 +129,7 @@ fn distance(a: &Point, b: &Point) -> f64 {
 }
 let origin = Point { x: 0.0, y: 0.0 };
 println!("distance = {:.2}", distance(&p, &origin));
-```rust
+```
 
 ---
 
@@ -142,7 +141,7 @@ match value {
     Some(n) => println!("got {n}"),
     None => println!("nothing"),
 }
-```rust
+```
 
 ---
 
@@ -154,7 +153,7 @@ let even_squares: Vec<i32> = (1..=10)
     .map(|n| n * n)
     .collect();
 println!("{even_squares:?}");
-```rust
+```
 
 ---
 
@@ -166,23 +165,24 @@ match result {
     Ok(v) => println!("ok: {v}"),
     Err(e) => println!("err: {e}"),
 }
-```rust
+```
 
 ---
 
 ## Try These Edge Cases
 
-```rust
-// This will fail — type mismatch
-let bad: u32 = "nope";
-```rust
+This will fail — type mismatch:
 
-Then try again with something correct — the error won't poison your session:
+```rust
+let bad: u32 = "nope";
+```
+
+The error won't poison your session. Try again with something correct:
 
 ```rust
 let fine = 99;
 println!("still works: {fine}");
-```rust
+```
 
 ---
 
@@ -194,7 +194,7 @@ for i in 0..100_000 {
     sum += i;
 }
 println!("sum = {sum}");
-```rust
+```
 
 ---
 
